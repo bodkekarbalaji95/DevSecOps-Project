@@ -48,6 +48,7 @@ pipeline {
                     npm install
                     npm i --package-lock-only
                     npm audit fix || true
+                    npm audit fix --force
                 '''
             }
         }
