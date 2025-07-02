@@ -49,6 +49,7 @@ pipeline {
                     npm i --package-lock-only
                     npm audit fix || true
                     npm audit fix --force
+                    npm fund
                 '''
             }
         }
