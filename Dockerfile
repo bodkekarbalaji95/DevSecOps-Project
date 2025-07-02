@@ -11,6 +11,10 @@ RUN yarn build
 
 FROM nginx:stable-alpine
 WORKDIR /usr/share/nginx/html
+
+# 🔐 Upgrade Alpine packages to fix CVEs
+RUN apk update && apk upgrade && rm -rf /var/cache/apk/*
+
 RUN rm -rf ./*
 COPY --from=builder /app/dist .
 EXPOSE 80
