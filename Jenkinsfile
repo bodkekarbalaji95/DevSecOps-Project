@@ -45,8 +45,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
-                npm i --package-lock-only
-                npm audit fix || true
+                sh 'npm i --package-lock-only'
+                sh 'npm audit fix || true'
             '''
             }
         }
