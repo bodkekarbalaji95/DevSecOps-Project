@@ -58,8 +58,6 @@ pipeline {
             steps {
                 dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'OWASP Dependency-Check'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-
-                
             }
             post {
                 always {
