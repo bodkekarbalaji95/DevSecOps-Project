@@ -55,7 +55,16 @@ pipeline {
         stage('OWASP FS SCAN') {
             steps {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
-                    sh 'export PATH="/var/lib/jenkins/tools/dependency-check/dependency-check/bin:$PATH" && dependency-check.sh --scan . --format ALL --out ./reports --nvdApiKey $NVD_KEY --nvdApiDelay 3000 || true'
+                    sh '''
+                        export PATH="/var/lib/jenkins/tools/dependency-check/dependency-check/bin:$PATH"
+                        echo "Using NVD Key: $NVD_KEY"
+                        dependency-check.sh \
+                          --scan . \
+                          --format ALL \
+                          --out ./reports \
+                          --nvdApiKey $NVD_KEY \
+                          --nvdApiDelay 6000 || true
+                    '''
                 }
             }
             post {
@@ -64,6 +73,7 @@ pipeline {
                 }
             }
         }
+
 
 
 
