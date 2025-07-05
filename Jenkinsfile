@@ -62,7 +62,7 @@ pipeline {
                             --format ALL \
                             --out ./reports \
                             --nvdApiKey $NVD_KEY \
-                            --nvdApiDelay 3000 \
+                            --nvdApiDelay 6000 \
                             --disableYarnAudit \
                             --disableNodeAudit || true
                     '''
@@ -88,15 +88,16 @@ pipeline {
 
         stage('Docker Build & Push') {
             steps {
-                script {
-                    withCredentials([string(credentialsId: 'tmdb', variable: 'API_KEY')]) {
-                        withDockerRegistry(credentialsId: 'Docker', toolName: 'docker') {
-                            sh "docker login -u bodkekarbalaji95"
-                            sh "docker build --build-arg TMDB_V3_API_KEY=$API_KEY -t netflix ."
-                            sh "docker tag netflix bodkekarbalaji95/netflix:latest"
-                            sh "docker push bodkekarbalaji95/netflix:latest"
-                        }
-                    }
+                withCredentials([
+                    string(credentialsId: 'Docker', variable: 'DOCKER_TOKEN'),
+                    string(credentialsId: 'tmdb', variable: 'API_KEY')
+                ]) {
+                    sh '''
+                        echo "$DOCKER" | docker login -u bodkekarbalaji95 --password-stdin
+                        docker build --build-arg TMDB_V3_API_KEY=$API_KEY -t netflix .
+                        docker tag netflix bodkekarbalaji95/netflix:latest
+                        docker push bodkekarbalaji95/netflix:latest
+                    '''
                 }
             }
         }
@@ -114,7 +115,7 @@ pipeline {
 
         stage('Deploy to Container') {
             steps {
-                sh 'docker run -d --name netflix -p 8081:80 bodkekarbalaji95/netflix:latest'
+                sh 'docker run -d --name netflix -p 8081:80 bodkekarbalaji95/netflix:latest || true'
             }
         }
     }
