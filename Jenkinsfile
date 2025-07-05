@@ -54,11 +54,10 @@ pipeline {
 
         stage('OWASP FS SCAN') {
             steps {
-                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
-                    echo "NVD key starts with: ${NVD_API_KEY.take(5)}"
-                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --format XML --out . --nvdApiKey=$NVD_API_KEY --nvdApiDelay 3000', odcInstallation: 'DP-Check'
-                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
+                    dependencyCheck additionalArguments: "--scan ./ --nvdApiKey=$NVD_KEY --nvdApiDelay=3000 --disableYarnAudit --disableNodeAudit", odcInstallation: 'DP-Check'
                 }
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
             post {
                 always {
@@ -66,6 +65,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('TRIVY FS SCAN') {
             steps {
