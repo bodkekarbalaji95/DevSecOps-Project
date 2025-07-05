@@ -55,6 +55,7 @@ pipeline {
         stage('OWASP FS SCAN') {
             steps {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+                    echo "NVD key starts with: ${NVD_API_KEY.take(5)}"
                     dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --format XML --out . --nvdApiKey=$NVD_API_KEY', odcInstallation: 'DP-Check'
                     dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
                 }
