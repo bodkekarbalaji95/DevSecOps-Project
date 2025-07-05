@@ -55,16 +55,16 @@ pipeline {
         stage('OWASP FS SCAN') {
             steps {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
-                    dependencyCheck additionalArguments: "--scan ./ --nvdApiKey=$NVD_KEY --nvdApiDelay=3000 --disableYarnAudit --disableNodeAudit", odcInstallation: 'DP-Check'
+                    sh 'export PATH="/var/lib/jenkins/tools/dependency-check/dependency-check/bin:$PATH" && dependency-check.sh --scan . --format ALL --out ./reports --nvdApiKey $NVD_KEY --nvdApiDelay 3000 || true'
                 }
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
             post {
                 always {
-                    archiveArtifacts artifacts: '**/dependency-check-report.xml', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'reports/*.*', allowEmptyArchive: true
                 }
             }
         }
+
 
 
         stage('TRIVY FS SCAN') {
