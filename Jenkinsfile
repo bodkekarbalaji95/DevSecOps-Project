@@ -90,7 +90,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'tmdb', variable: 'API_KEY')]) {
-                        withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                        withDockerRegistry(credentialsId: 'Docker', toolName: 'docker') {
+                            sh "docker login -u bodkekarbalaji95"
                             sh "docker build --build-arg TMDB_V3_API_KEY=$API_KEY -t netflix ."
                             sh "docker tag netflix bodkekarbalaji95/netflix:latest"
                             sh "docker push bodkekarbalaji95/netflix:latest"
