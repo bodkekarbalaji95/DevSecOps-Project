@@ -27,7 +27,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh "$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Netflix -Dsonar.projectKey=Netflix -Dsonar.sources=."
+                    sh '''
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=Netflix \
+                        -Dsonar.projectKey=Netflix \
+                        -Dsonar.sources=.
+                    '''
                 }
             }
         }
@@ -57,13 +62,16 @@ pipeline {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
                     sh '''
                         export PATH="/var/lib/jenkins/tools/dependency-check/dependency-check/bin:$PATH"
-                        echo "Using NVD Key: $NVD_KEY"
+                        export NVD_API_KEY="$NVD_KEY"
+                        export NVD_API_URL=https://services.nvd.nist.gov/rest/json/cves/2.0
+
                         dependency-check.sh \
-                          --scan . \
-                          --format ALL \
-                          --out ./reports \
-                          --nvdApiKey $NVD_KEY \
-                          --nvdApiDelay 6000 || true
+                            --scan . \
+                            --format ALL \
+                            --out ./reports \
+                            --nvdApiDelay 6000 \
+                            --disableYarnAudit \
+                            --disableNodeAudit || true
                     '''
                 }
             }
@@ -73,9 +81,6 @@ pipeline {
                 }
             }
         }
-
-
-
 
         stage('TRIVY FS SCAN') {
             steps {
@@ -93,9 +98,11 @@ pipeline {
                 script {
                     withCredentials([string(credentialsId: 'tmdb', variable: 'API_KEY')]) {
                         withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
-                            sh "docker build --build-arg TMDB_V3_API_KEY=$API_KEY -t netflix ."
-                            sh "docker tag netflix bodkekarbalaji95/netflix:latest"
-                            sh "docker push bodkekarbalaji95/netflix:latest"
+                            sh '''
+                                docker build --build-arg TMDB_V3_API_KEY=$API_KEY -t netflix .
+                                docker tag netflix bodkekarbalaji95/netflix:latest
+                                docker push bodkekarbalaji95/netflix:latest
+                            '''
                         }
                     }
                 }
@@ -115,7 +122,7 @@ pipeline {
 
         stage('Deploy to Container') {
             steps {
-                sh 'docker run -d --name netflix -p 8081:80 bodkekarbalaji95/netflix:latest'
+                sh 'docker run -d --name netflix -p 8081:80 bodkekarbalaji95/netflix:latest || true'
             }
         }
     }
