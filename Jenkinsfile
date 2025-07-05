@@ -93,7 +93,7 @@ pipeline {
                     string(credentialsId: 'tmdb', variable: 'API_KEY')
                 ]) {
                     sh '''
-                        echo "$DOCKER" | docker login -u bodkekarbalaji95 --password-stdin
+                        echo "$DOCKER_TOKEN" | docker login -u bodkekarbalaji95 --password-stdin
                         docker build --build-arg TMDB_V3_API_KEY=$API_KEY -t netflix .
                         docker tag netflix bodkekarbalaji95/netflix:latest
                         docker push bodkekarbalaji95/netflix:latest
