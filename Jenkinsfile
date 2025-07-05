@@ -79,7 +79,7 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'tmdb-api', variable: 'API_KEY')]) {
+                    withCredentials([string(credentialsId: 'tmdb', variable: 'API_KEY')]) {
                         withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
                             sh "docker build --build-arg TMDB_V3_API_KEY=$API_KEY -t netflix ."
                             sh "docker tag netflix bodkekarbalaji95/netflix:latest"
