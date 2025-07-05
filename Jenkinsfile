@@ -115,7 +115,11 @@ pipeline {
 
         stage('Deploy to Container') {
             steps {
-                sh 'docker run -d --name netflix -p 8081:80 bodkekarbalaji95/netflix:latest || true'
+                sh '''
+                    docker stop netflix || true
+                    docker rm netflix || true
+                    docker run -d --name netflix -p 8081:80 bodkekarbalaji95/netflix:latest
+                '''
             }
         }
     }
